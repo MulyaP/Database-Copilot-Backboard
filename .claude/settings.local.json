@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__backboard-docs__list_pages",
+      "mcp__backboard-docs__get_page",
+      "Bash(npx create-next-app@latest frontend --typescript --tailwind --app --no-eslint --no-src-dir --import-alias \"@/*\" --yes)"
+    ]
+  }
+}
