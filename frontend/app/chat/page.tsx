@@ -191,11 +191,21 @@ export default function ChatPage() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col bg-gray-900">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
-        <h1 className="text-base font-semibold text-gray-800">Database Copilot</h1>
-        <button onClick={handleSignOut} className="text-sm text-gray-500 hover:text-gray-700">
+      <div className="flex items-center justify-between border-b border-gray-700 bg-gray-800 px-6 py-4 shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md">
+            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-white">Database Copilot</h1>
+            <p className="text-xs text-gray-400">Chat with your database</p>
+          </div>
+        </div>
+        <button onClick={handleSignOut} className="rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-sm font-medium text-gray-200 transition-colors hover:bg-gray-600">
           Sign out
         </button>
       </div>
@@ -238,7 +248,7 @@ export default function ChatPage() {
       )}
 
       {/* Input bar — disabled while waiting for LLM or user approval */}
-      <div className="border-t border-gray-200 bg-white px-4 py-3">
+      <div className="border-t border-gray-700 bg-gray-800 px-4 py-4 shadow-lg">
         <div className="mx-auto flex max-w-3xl items-end gap-3">
           <textarea
             ref={textareaRef}
@@ -247,7 +257,7 @@ export default function ChatPage() {
             onKeyDown={handleKeyDown}
             disabled={inputBlocked}
             rows={1}
-            className="flex-1 resize-none rounded border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none disabled:bg-gray-50 disabled:text-gray-400"
+            className="flex-1 resize-none rounded-xl border border-gray-600 bg-gray-700 px-4 py-3 text-sm text-white placeholder-gray-400 shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
             placeholder={
               inProgress?.pendingApproval
                 ? "Waiting for your decision above…"
@@ -258,7 +268,7 @@ export default function ChatPage() {
           <button
             onClick={handleSend}
             disabled={inputBlocked || !input.trim()}
-            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {sending && !inProgress?.pendingApproval ? (
               <span className="flex items-center gap-2">
@@ -266,7 +276,12 @@ export default function ChatPage() {
                 Thinking…
               </span>
             ) : (
-              "Send"
+              <span className="flex items-center gap-2">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                Send
+              </span>
             )}
           </button>
         </div>

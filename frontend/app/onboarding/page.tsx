@@ -61,50 +61,79 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-2xl font-semibold text-gray-800">
-          Connect your database
-        </h1>
-        <p className="mb-6 text-sm text-gray-500">
-          Paste your database connection string below.
-        </p>
-
-        {error && (
-          <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
+    <div className="bg-gray-900 flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-lg space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+            <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
           </div>
-        )}
-
-        <div className="mb-2">
-          <input
-            type="text"
-            value={connectionString}
-            onChange={(e) => setConnectionString(e.target.value)}
-            disabled={loading}
-            className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-sm text-gray-800 focus:border-blue-500 focus:outline-none disabled:bg-gray-50"
-            placeholder="postgresql://user:password@host:5432/dbname"
-          />
+          <h1 className="text-3xl font-bold text-white">
+            Connect Your Database
+          </h1>
+          <p className="mt-2 text-sm text-gray-400">
+            We'll read your schema and set up your AI assistant
+          </p>
         </div>
 
-        <p className="mb-6 text-xs text-gray-400">
-          Supported: PostgreSQL, MySQL, SQLite
-        </p>
+        {/* Card */}
+        <div className="rounded-2xl border border-gray-700 bg-gray-800 p-8 shadow-xl">
 
-        <button
-          onClick={handleConnect}
-          disabled={loading || !connectionString.trim()}
-          className="w-full rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              Reading your schema…
-            </span>
-          ) : (
-            "Connect"
+          {error && (
+            <div className="mb-6 rounded-lg border border-red-800 bg-red-900/50 px-4 py-3 text-sm text-red-200">
+              <div className="flex items-start gap-2">
+                <svg className="mt-0.5 h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <span>{error}</span>
+              </div>
+            </div>
           )}
-        </button>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-300">
+                Connection String
+              </label>
+              <input
+                type="text"
+                value={connectionString}
+                onChange={(e) => setConnectionString(e.target.value)}
+                disabled={loading}
+                className="w-full rounded-xl border border-gray-600 bg-gray-700 px-4 py-2.5 font-mono text-sm text-white placeholder-gray-400 transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
+                placeholder="postgresql://user:password@host:5432/dbname"
+              />
+              <p className="mt-2 flex items-center gap-1.5 text-xs text-gray-400">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Supported: PostgreSQL, MySQL, SQLite
+              </p>
+            </div>
+
+            <button
+              onClick={handleConnect}
+              disabled={loading || !connectionString.trim()}
+              className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Reading your schema…
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Connect Database
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

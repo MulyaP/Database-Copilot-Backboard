@@ -14,7 +14,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[75%] rounded-lg bg-blue-600 px-4 py-3 text-sm text-white">
+        <div className="max-w-[75%] rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 text-sm text-white shadow-lg">
           {message.content}
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         )}
 
         {/* Final answer */}
-        <div className="rounded-lg bg-gray-100 px-4 py-3 text-sm text-gray-800">
+        <div className="rounded-2xl border border-gray-700 bg-gray-800 px-5 py-4 text-sm text-gray-200 shadow-lg">
           <p className="whitespace-pre-wrap">{message.content}</p>
         </div>
 
