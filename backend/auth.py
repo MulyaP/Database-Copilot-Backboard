@@ -24,7 +24,7 @@ def verify_jwt(credentials: HTTPAuthorizationCredentials = Security(security)) -
         if user is None:
             logger.warning("JWT verification returned no user (token prefix: %s)", token_preview)
             raise HTTPException(status_code=401, detail="Invalid token")
-        logger.info("JWT verified — user_id=%s  email=%s", user.id, getattr(user, "email", "n/a"))
+        logger.info("JWT verified — user_id=%s", user.id)
         return user.id
     except HTTPException:
         raise

@@ -48,8 +48,8 @@ class ChatMessageResponse(BaseModel):
 
 class ChatExecuteRequest(BaseModel):
     """Sent by the frontend after the user decides on a pending write query."""
-    sql: str
     approved: bool
+    sql: Optional[str] = None  # display-only; execution uses server-side pending SQL
 
 
 class QueryRunRequest(BaseModel):

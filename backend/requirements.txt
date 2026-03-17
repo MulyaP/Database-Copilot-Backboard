@@ -8,3 +8,5 @@ supabase
 pydantic
 PyMySQL
 python-jose
+groq
+slowapi

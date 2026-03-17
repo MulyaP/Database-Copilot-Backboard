@@ -1,14 +1,23 @@
 import logging
+import os
 import time
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from routers import onboarding, chat, query
 
 # ---------------------------------------------------------------------------
 # Logging configuration — runs once at startup
+# LOG_LEVEL env var controls verbosity (default: INFO for production safety).
+# Set LOG_LEVEL=DEBUG locally to restore verbose output.
 # ---------------------------------------------------------------------------
+_log_level_name = os.environ.get("LOG_LEVEL", "INFO").upper()
+_log_level = getattr(logging, _log_level_name, logging.INFO)
+
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=_log_level,
     format="%(asctime)s  %(levelname)-8s  %(name)s  |  %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
@@ -20,15 +29,29 @@ logging.getLogger("supabase").setLevel(logging.WARNING)
 logging.getLogger("postgrest").setLevel(logging.WARNING)
 
 logger = logging.getLogger("main")
+logger.info("Log level set to %s", _log_level_name)
+
+# ---------------------------------------------------------------------------
+# Rate limiter
+# ---------------------------------------------------------------------------
+limiter = Limiter(key_func=get_remote_address)
 
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
 app = FastAPI(title="Database Copilot API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# ALLOWED_ORIGINS: comma-separated list of allowed origins.
+# Example: ALLOWED_ORIGINS=https://your-app.vercel.app,http://localhost:3000
+_raw_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3001")
+_allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+logger.info("CORS allowed origins: %s", _allowed_origins)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
