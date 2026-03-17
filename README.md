@@ -1,14 +1,15 @@
 # Database Copilot
 
-An AI-powered assistant that lets developers connect their database and chat with it in plain English. The AI writes SQL, explains queries, and remembers context across sessions using Backboard.io's memory API.
+An AI-powered assistant that lets developers connect their database and chat with it in plain English. The AI writes and executes SQL using an agentic loop — running SELECT queries automatically and pausing for user approval before any INSERT or UPDATE.
 
 ## Tech Stack
 
 - **Frontend:** Next.js (App Router) + Tailwind CSS
 - **Backend:** FastAPI (Python)
 - **Auth:** Supabase Auth (email/password)
-- **Memory & LLM:** Backboard.io API
+- **LLM:** Groq API (`llama-3.3-70b-versatile`)
 - **App Database:** Supabase (Postgres)
+- **Supported User DBs:** PostgreSQL, MySQL, SQLite
 
 ---
 
@@ -25,8 +26,6 @@ create table connections (
   user_id uuid references auth.users(id) on delete cascade,
   connection_string text not null,
   db_type text not null,
-  backboard_assistant_id text not null,
-  backboard_thread_id text not null,
   created_at timestamp with time zone default now(),
   unique(user_id)
 );
@@ -43,11 +42,11 @@ using (auth.uid() = user_id);
    - **anon/public key** → frontend `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - **service_role key** → backend `SUPABASE_SERVICE_ROLE_KEY`
 
-### 2. Backboard
+### 2. Groq
 
-1. Create an account at [app.backboard.io](https://app.backboard.io)
-2. Go to **Settings → API Keys** and create a new API key
-3. Copy the key → backend `BACKBOARD_API_KEY`
+1. Create an account at [console.groq.com](https://console.groq.com)
+2. Go to **API Keys** and create a new key
+3. Copy the key → backend `GROQ_API_KEY`
 
 ### 3. Configure Environment Variables
 
@@ -55,7 +54,13 @@ using (auth.uid() = user_id);
 ```
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-BACKBOARD_API_KEY=your_backboard_api_key
+GROQ_API_KEY=your_groq_api_key
+
+# Comma-separated allowed CORS origins
+ALLOWED_ORIGINS=http://localhost:3001
+
+# Log level: INFO for production, DEBUG for local development
+LOG_LEVEL=INFO
 ```
 
 **`frontend/.env.local`**
@@ -73,12 +78,11 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 ```bash
 cd backend
-bash setup.sh
-source venv/bin/activate
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
-
-> On Windows, activate the virtualenv with: `venv\Scripts\activate`
 
 ### Frontend
 
@@ -92,18 +96,31 @@ The app runs at [http://localhost:3000](http://localhost:3000).
 
 ---
 
+## How It Works
+
+1. Sign up and paste your database connection string on the onboarding screen
+2. The backend introspects your schema and caches it in memory
+3. Each chat message kicks off an agentic loop powered by Groq:
+   - **SELECT** queries run automatically and results are shown inline
+   - **INSERT / UPDATE** queries pause and ask for your approval before executing
+   - **Destructive or privileged commands** (DROP, DELETE, ALTER, GRANT, etc.) are blocked server-side regardless of what the LLM generates
+4. The loop continues until the LLM has a final answer, hits the query limit (8 iterations), or times out (120s)
+
+---
+
 ## Usage
 
 1. Open [http://localhost:3000](http://localhost:3000) — you'll be redirected to `/login`
 2. Sign up with your email and password
-3. On the onboarding screen, paste your database connection string (e.g. `postgresql://user:password@host:5432/dbname`)
-4. Click **Connect** — the app reads your schema and initializes the AI assistant
-5. You're redirected to the chat interface
-6. Ask questions in plain English, e.g.:
+3. On the onboarding screen, paste your database connection string, e.g.:
+   - PostgreSQL: `postgresql://user:password@host:5432/dbname`
+   - MySQL: `mysql://user:password@host:3306/dbname`
+4. Click **Connect** — the app reads your schema and you're redirected to the chat interface
+5. Ask questions in plain English, e.g.:
    - "Show me all users who signed up this week"
    - "What tables do I have?"
    - "Find the top 10 orders by total amount"
-7. When the AI returns SQL, click **Run Query** to execute it and see results inline
+   - "Insert a new product called Widget with price 9.99"
 
 ---
 
@@ -112,20 +129,20 @@ The app runs at [http://localhost:3000](http://localhost:3000).
 ```
 /
 ├── backend/
-│   ├── main.py                # FastAPI entry point
+│   ├── main.py                # FastAPI entry point, CORS, rate limiter
 │   ├── auth.py                # JWT verification via Supabase
 │   ├── models.py              # Pydantic request/response models
 │   ├── supabase_client.py     # Supabase server client
 │   ├── routers/
 │   │   ├── onboarding.py      # POST /onboarding/connect
-│   │   ├── chat.py            # POST /chat/message
+│   │   ├── chat.py            # POST /chat/message, POST /chat/execute
 │   │   └── query.py           # POST /query/run
 │   ├── services/
-│   │   ├── backboard.py       # Backboard API integration
+│   │   ├── groq_llm.py        # Groq API client + tool definition
+│   │   ├── history.py         # In-memory chat history + schema cache
 │   │   ├── schema.py          # DB schema introspection
 │   │   └── db.py              # User DB query execution
-│   ├── requirements.txt
-│   └── setup.sh
+│   └── requirements.txt
 │
 └── frontend/
     ├── app/
@@ -141,3 +158,11 @@ The app runs at [http://localhost:3000](http://localhost:3000).
     └── lib/
         └── supabaseClient.ts
 ```
+
+---
+
+## Limitations
+
+- Chat history is stored **in memory** — it resets on server restart
+- No support for DDL or privilege management by design
+- Rate limited to 20 messages/minute per IP
