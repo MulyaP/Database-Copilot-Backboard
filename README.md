@@ -1,5 +1,7 @@
 # Database Copilot
 
+**Live demo:** https://database-copilot-backboard-frontend.vercel.app
+
 An AI-powered assistant that lets developers connect their database and chat with it in plain English. The AI writes and executes SQL using an agentic loop — running SELECT queries automatically and pausing for user approval before any INSERT or UPDATE.
 
 ## Tech Stack
@@ -93,6 +95,22 @@ npm run dev
 ```
 
 The app runs at [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Screenshots
+
+**Schema introspection** — ask the AI to describe your database and it maps out every table, column, and relationship:
+![Schema description](demo/Schema_description.png)
+
+**Automatic SELECT queries** — read-only queries run instantly with results shown inline:
+![Two select queries](demo/two_select_queries.png)
+
+**Write query approval** — INSERT and UPDATE queries pause and ask for your approval before touching any data:
+![Write permission demo](demo/Write_permission_demo.png)
+
+**Mixed operations** — INSERT approved and executed; DELETE blocked by a foreign key constraint:
+![Write and delete query demo](demo/Write_delete_query_demo.png)
 
 ---
 
