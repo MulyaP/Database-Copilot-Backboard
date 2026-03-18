@@ -9,7 +9,7 @@ from services import db as db_service
 from services import schema as schema_service
 from services import history
 from services import groq_llm
-from main import limiter
+from limiter import limiter
 import re
 
 logger = logging.getLogger(__name__)

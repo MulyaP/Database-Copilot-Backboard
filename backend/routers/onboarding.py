@@ -5,7 +5,7 @@ from auth import verify_jwt
 from supabase_client import supabase
 from services import schema as schema_service
 from services import history
-from main import limiter
+from limiter import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])

@@ -3,9 +3,9 @@ import os
 import time
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
+from limiter import limiter
 from routers import onboarding, chat, query
 
 # ---------------------------------------------------------------------------
@@ -30,11 +30,6 @@ logging.getLogger("postgrest").setLevel(logging.WARNING)
 
 logger = logging.getLogger("main")
 logger.info("Log level set to %s", _log_level_name)
-
-# ---------------------------------------------------------------------------
-# Rate limiter
-# ---------------------------------------------------------------------------
-limiter = Limiter(key_func=get_remote_address)
 
 # ---------------------------------------------------------------------------
 # App
